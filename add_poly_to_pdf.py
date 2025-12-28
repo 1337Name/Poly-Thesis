@@ -3,8 +3,8 @@ import sys
 import re
 
 if len(sys.argv) < 3:
-        print("Error: No arguments provided.", file=sys.stderr)
-        sys.exit(1)
+    print("Error: No arguments provided.", file=sys.stderr)
+    sys.exit(1)
 
 filename = sys.argv[1]
 parasite = sys.argv[2]

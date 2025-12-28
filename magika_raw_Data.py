@@ -4,8 +4,8 @@ import sys
 m = magika.Magika()
 pathName = ""
 if len(sys.argv) < 2:
-        print("Error: No arguments provided.", file=sys.stderr)
-        sys.exit(1)
+    print("Error: No arguments provided.", file=sys.stderr)
+    sys.exit(1)
 
 filenames = sys.argv[1:]
 resultList = []

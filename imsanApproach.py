@@ -3,8 +3,8 @@ import os
 import sys
 
 if len(sys.argv) < 2:
-        print("Error: No arguments provided.", file=sys.stderr)
-        sys.exit(1)
+    print("Error: No arguments provided.", file=sys.stderr)
+    sys.exit(1)
 
 filename = sys.argv[1]
 split_fname = os.path.splitext(filename)

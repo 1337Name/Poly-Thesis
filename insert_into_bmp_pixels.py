@@ -33,8 +33,8 @@ length = struct.unpack('<I', bmp[22:26])[0]
 bitspp = struct.unpack('<H', bmp[28:30])[0] #bits per pixel 
 bytespp = bitspp // 8 # calc bytes per pixel
 imgSize = width*length*bytespp
-if(len(payload) > imgSize): 
-    print("Error: payload size greater than image size", file=sys.stderr)
+if(len(payload) + offset > imgSize): 
+    print("Error: payload size + offset greater than image size", file=sys.stderr)
     sys.exit(1)
 if(len(payload) > imgSize // 100):
     print("Warning: payload takes up a significant part of the image")

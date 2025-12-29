@@ -2,6 +2,7 @@
 from enum import Enum
 from dataclasses import dataclass
 from typing import Optional, List
+
 class FileType(str, Enum):
    # we only need the filetypes we really use 
    # Design decision here is we convert what we actualy look for in eval i.e. combinations we generate
@@ -17,6 +18,11 @@ class FileType(str, Enum):
     ZIP = "ZIP"
     JS = "JS"
     
+FILETYPE_NAMES_ALT = {
+    "jfif": FileType.JPEG,
+    "jpg": FileType.JPEG,
+    "htm": FileType.HTML,
+}
 
 @dataclass
 class DetectionResult:

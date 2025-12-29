@@ -11,29 +11,14 @@ class FileDetector(BaseDetector):
             raw_out = self._run(filepath)
             types = self._parse(raw_out)
             normalized = self._normalize(types)
-
-            is_polyglot = len(normalized_type) > 1 #if 2 different detected its polyglot
-
-            return DetectionResult(
-                tool = "file",
-                detected_types = normalized,
-                is_polyglot = is_polyglot,
-                raw_output = raw_out,
-                confidence_scores = NNone,
-                error = None
-            )
+            return self._make_result(normalized, raw_out)
         #some exception occured for error handling we just make it empty but give the error
         #bercause we will put this all in the end in json so its good to know why it failed there not just in the console when running
         except Exception as exception:
-            return DetectionResult(
-                tool = "file",
-                detected_types = set(),
-                is_polyglot = False,
-                raw_output = "",
-                confidence_scores = None,
-                error = str(exception)
-            )
+            return _make_error(exception)
 
+    def _get_name() -> str:
+        return "file"
     def _run(self, filepath: Path) -> str:
         fileRes = subprocess.run(["file", "--keep-going","--mime-type", str(filepath)],
         capture_output=True,
@@ -50,7 +35,7 @@ class FileDetector(BaseDetector):
         splits = content.split("\\012-")
         for mime in splits:
             mime = mime.strip()
-            if mime and mime not in ["application/octet-stream", "text/plain"]: #these seem to match for any binary/text data
+            if mime and mime not in ["application/octet-stream", "text/plain"]: #these seem to match for any binary/text
                 subtype = mime.split("/")[1] #mime format is type/subtype
                 types.append(subtype)
         return types

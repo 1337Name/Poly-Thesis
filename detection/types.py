@@ -1,7 +1,7 @@
 
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Any
 
 class FileType(str, Enum):
    # we only need the filetypes we really use 
@@ -29,6 +29,6 @@ class DetectionResult:
     tool: str
     detected_types: set[str]      
     is_polyglot: bool
-    raw_output: str
+    raw_output: dict | str | list #important: need to be json dumpable/serializable
     confidence_scores: Optional[Dict[str, float]] = None
     error: Optional[str] = None

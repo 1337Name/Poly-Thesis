@@ -1,23 +1,41 @@
 from .types import FileType, DetectionResult, FILETYPE_NAMES_ALT
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List
+from typing import List, Any, Set, Optional
 import re
 
 class BaseDetector(ABC):
-  @abstractmethod
+
+    @abstractmethod
     def detect(self, filepath: Path) -> DetectionResult:
         pass
     
     @abstractmethod
-    def _run(self, filepath: Path) -> str:
+    def _get_name(self) -> str:
         pass
 
-    @abstractmethod
-    def _parse(self, output: str) -> List[str]:
-        pass
+    def _make_result(self, detected_types: Set[FileType], raw_output: str | dict | list,
+        confidence_scores: Optional[dict] = None) -> DetectionResult:
+        return DetectionResult(
+            tool=self._get_name(),
+            detected_types=detected_types,
+            is_polyglot=len(detected_types) > 1,
+            raw_output=raw_output,
+            confidence_scores=confidence_scores,
+            error=None
+        )
+    
+    def _make_error(self, error: Exception) -> DetectionResult:
+        return DetectionResult(
+            tool=self._get_name(),
+            detected_types=set(),
+            is_polyglot=False,
+            raw_output="",
+            confidence_scores=None,
+            error=str(error)
+        )
 
-    def _normalize(self, types: List[str]):
+    def _normalize(self, types: List[str]) -> Set[FileType | str]:
         normalized = set() # avoids duplication
         for raw_type in types:
             normalized_type = self._normalize_type(raw_type)
@@ -28,7 +46,7 @@ class BaseDetector(ABC):
                 normalized.add(raw_type)
         return normalized
 
-    def _normalize_type(self, raw_type: str):
+    def _normalize_type(self, raw_type: str) -> Optional[FileType]:
         raw_type = raw_type.lower()
         #extra cases TODO add more extra cases
         for name, file_type in FILETYPE_NAMES_ALT.items():
@@ -41,4 +59,4 @@ class BaseDetector(ABC):
             if re.search(pattern, raw_type):
                 return file_type
             
-            return None
+        return None

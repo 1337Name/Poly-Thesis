@@ -4,56 +4,34 @@ from pathlib import Path
 from typing import List
 import magika
 
-class FileDetector(BaseDetector):
-    def __init__(self):
+class MagikaDetector(BaseDetector):
+    def __init__(self, threshold : float = 0.1):
         super().__init__()
+        self._threshold = threshold
         self._magika = magika.Magika() #do it just once
+        self._labels = self._magika._model_config.target_labels_space
 
-    def detect(self, filepath: Path) -> DetectionResult:
+
+    def _get_name(self) -> str:
+        return "magika"
+    def detect(self, path: Path) -> DetectionResult:
         try:
-            raw_out = self._run(filepath)
-            types = self._parse(raw_out)
-            normalized = self._normalize(types)
-
-            is_polyglot = len(normalized_type) > 1 #if 2 different detected its polyglot
-
-            return DetectionResult(
-                tool = "magika",
-                detected_types = normalized,
-                is_polyglot = is_polyglot,
-                raw_output = raw_out,
-                confidence_scores = NNone,
-                error = None
-            )
+            preds = self._run(path)
+            relevant = [(l,s) for l,s in preds if s > self._threshold]
+            normalized = self._normalize([l for l,_ in relevant])
+            return self._make_result(normalized, preds)
         #some exception occured for error handling we just make it empty but give the error
         #bercause we will put this all in the end in json so its good to know why it failed there not just in the console when running
         except Exception as exception:
-            return DetectionResult(
-                tool = "magika",
-                detected_types = set(),
-                is_polyglot = False,
-                raw_output = "",
-                confidence_scores = None,
-                error = str(exception)
-            )
+            return self._make_error(exception)
 
-    def _run(self, filepath: Path) -> str:
-        out, features = m._get_result_or_features_from_path(path)
+    def _run(self, path: Path) -> list:
+        out, features = self._magika._get_result_or_features_from_path(path)
         if out != None:
-            continue #TODO implement logic
-        preds = m._get_raw_predictions([(path, features)]).flatten()
-        preds_labeled = list(zip(labels, preds))
+            #https://github.com/google/magika/blob/main/python/src/magika/types/magika_result.py
+            #https://github.com/google/magika/blob/main/python/src/magika/types/content_type_info.py#L26
+            return [(out.output.label, out.output.score)]
+        preds = self._magika._get_raw_predictions([(path, features)]).flatten()
+        preds_labeled = list(zip(self._labels, preds))
         preds_sorted = sorted(preds_labeled, key=lambda x: x[1], reverse=True)
-
-    def _parse(self, output : str) -> List[str]:
-        #07-06.pdf: application/pdf\012- application/octet-stream
-        #insert_jpg_metadata.py: text/html\012- text/plain
-        types = []
-        content = output.split(":", 1)[1].strip() # remove filename
-        splits = content.split("\\012-")
-        for mime in splits:
-            mime = mime.strip()
-            if mime and mime not in ["application/octet-stream", "text/plain"]: #these seem to match for any binary/text data
-                subtype = mime.split("/")[1] #mime format is type/subtype
-                types.append(subtype)
-        return types
+        return preds_sorted        

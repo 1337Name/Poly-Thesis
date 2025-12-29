@@ -7,21 +7,19 @@ import re
 class BaseDetector(ABC):
 
     @abstractmethod
-    def detect(self, filepath: Path) -> DetectionResult:
+    def detect(self, path: Path) -> DetectionResult:
         pass
     
     @abstractmethod
     def _get_name(self) -> str:
         pass
 
-    def _make_result(self, detected_types: Set[FileType], raw_output: str | dict | list,
-        confidence_scores: Optional[dict] = None) -> DetectionResult:
+    def _make_result(self, detected_types: Set[FileType], raw_output: str | dict | list) -> DetectionResult:
         return DetectionResult(
             tool=self._get_name(),
             detected_types=detected_types,
             is_polyglot=len(detected_types) > 1,
             raw_output=raw_output,
-            confidence_scores=confidence_scores,
             error=None
         )
     
@@ -31,7 +29,6 @@ class BaseDetector(ABC):
             detected_types=set(),
             is_polyglot=False,
             raw_output="",
-            confidence_scores=None,
             error=str(error)
         )
 

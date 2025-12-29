@@ -30,5 +30,4 @@ class DetectionResult:
     detected_types: set[str]      
     is_polyglot: bool
     raw_output: dict | str | list #important: need to be json dumpable/serializable
-    confidence_scores: Optional[Dict[str, float]] = None
     error: Optional[str] = None

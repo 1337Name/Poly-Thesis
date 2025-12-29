@@ -6,21 +6,21 @@ import subprocess
 
 class FileDetector(BaseDetector):
 
-    def detect(self, filepath: Path) -> DetectionResult:
+    def detect(self, path: Path) -> DetectionResult:
         try:
-            raw_out = self._run(filepath)
+            raw_out = self._run(path)
             types = self._parse(raw_out)
             normalized = self._normalize(types)
             return self._make_result(normalized, raw_out)
         #some exception occured for error handling we just make it empty but give the error
         #bercause we will put this all in the end in json so its good to know why it failed there not just in the console when running
         except Exception as exception:
-            return _make_error(exception)
+            return self._make_error(exception)
 
-    def _get_name() -> str:
+    def _get_name(self) -> str:
         return "file"
-    def _run(self, filepath: Path) -> str:
-        fileRes = subprocess.run(["file", "--keep-going","--mime-type", str(filepath)],
+    def _run(self, path: Path) -> str:
+        fileRes = subprocess.run(["file", "--keep-going","--mime-type", str(path)],
         capture_output=True,
         text=True,#output in text mode not byte
         timeout = 20 #to be safe

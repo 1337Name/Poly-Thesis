@@ -36,6 +36,5 @@ class FileDetector(BaseDetector):
         for mime in splits:
             mime = mime.strip()
             if mime and mime not in ["application/octet-stream", "text/plain"]: #these seem to match for any binary/text
-                subtype = mime.split("/")[1] #mime format is type/subtype
-                types.append(subtype)
+                types.append(mime)
         return types

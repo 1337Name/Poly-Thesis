@@ -44,7 +44,9 @@ class BaseDetector(ABC):
         return normalized
 
     def _normalize_type(self, raw_type: str) -> Optional[FileType]:
-        raw_type = raw_type.lower()
+        raw_type = raw_type.lower().strip()
+        if "/" in raw_type:
+            raw_type = raw_type.split("/")[1].strip()
         #extra cases TODO add more extra cases
         for name, file_type in FILETYPE_NAMES_ALT.items():
             pattern = r'\b' + re.escape(name) + r'\b' # search for whole word

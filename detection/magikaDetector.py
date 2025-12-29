@@ -20,8 +20,6 @@ class MagikaDetector(BaseDetector):
             relevant = [(l,s) for l,s in preds if s > self._threshold]
             normalized = self._normalize([l for l,_ in relevant])
             return self._make_result(normalized, preds)
-        #some exception occured for error handling we just make it empty but give the error
-        #bercause we will put this all in the end in json so its good to know why it failed there not just in the console when running
         except Exception as exception:
             return self._make_error(exception)
 

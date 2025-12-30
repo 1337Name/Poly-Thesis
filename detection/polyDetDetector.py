@@ -17,8 +17,6 @@ class PolyDetDetector(BaseDetector):
         except Exception as exception:
             return self._make_error(exception)
 
-
-
     def _make_serializable(self, result : dict[str, Any]) -> dict:
         serializable = {
             ftype: polyglotlevel.suspicious_chunks

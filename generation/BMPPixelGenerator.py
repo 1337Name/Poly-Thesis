@@ -27,7 +27,7 @@ class BMPPixelGenerator(BaseGenerator):
         imgSize = width*length*bytespp
         if(len(payload) + payload_offset > imgSize): 
             raise ValueError("payload size + offset greater than image size")
-        if(len(payload) > imgSize // 100):
+        #if(len(payload) > imgSize // 100):
             #TODO logging?
             #print("Warning: payload takes up a significant part of the image")
 

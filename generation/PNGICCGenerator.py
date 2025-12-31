@@ -2,7 +2,7 @@
 import zlib
 import struct
 from pathlib import Path
-from .BaseGenerator import BaseGenerator
+from .baseGenerator import BaseGenerator
 
 
 
@@ -43,6 +43,7 @@ class PNGICCGenerator(BaseGenerator):
 
 
     def _inject_into_icc(self, icc, payload):
+        #junk method inspired from https://github.com/corkami/mitra/blob/master/parsers/icc.py
         icc = bytearray(icc)
         tag_count = struct.unpack('>I', icc[128:132])[0]
         # OLD end value

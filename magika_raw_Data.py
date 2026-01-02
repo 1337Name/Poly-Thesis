@@ -22,3 +22,8 @@ for filename in filenames:
     resultList.append((path, preds_sorted))
     
 print(resultList)
+
+
+
+if __name__ == "__main__":
+    basePath = Path(__file__).parent.parent

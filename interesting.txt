@@ -1,0 +1,16 @@
+Can create a progressive jpg. Ascii seems to always be valid at least in the end.
+So the error doesnt propagate to later blocks much and also it doesnt destroy the image in any way
+because its progressive jpg and this is like the dct data thats really fine tune of the image could be stripped for compression etc
+TODO why is it working? huffman coding shoudl not blow up/unaligned when put ascii? 
+if the decode blows up the data itprob just ignore the rest as its outside of bound after last block? And its more likely as prob the data thats there is shortest possible code words in avg
+
+HTA seems to accept 16 bit encoding too. 
+
+TODO test hta and php etc acceptance of null bytes for png 
+
+If its parasite format is complicated could work aroudn png row restriction / null byte could be lined up to file structure 
+
+Can not create a RGB png with literal text that convert to BMP even when sanitized/reencoded because BMP is RBG
+Furthermore the rows order is switched but PNG we wanna stay on 1 row anyway
+The trick woujld be to have a greyscale image but limited to one row as after loses coherency
+unless define functions each row or sth 

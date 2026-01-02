@@ -39,7 +39,7 @@ class PNGPixelGenerator(BaseGenerator):
         width = int(len(pixels[0])/3)
         bit_depth = 8
         color_type = 2 #only color used
-        compression_method = 0
+        compression_method = 0 #zlib (note it doesnt specify which zlib level just zlib)
         filter_method = 0
         interlace_method = 0
         ihdr_data = struct.pack('>IIBBBBB', width, height, bit_depth, color_type, compression_method, filter_method, interlace_method)

@@ -1,7 +1,7 @@
 import sys
 import struct
 def parse_jpg_segments(jpg):
-    # parse all marker bytes and give type to relevant ones
+    # parse all marker bytes and give type to relevant ones (App0 APP1 SOS)
     # using marker types data from https://gist.github.com/RavuAlHemio/82959fb698790781c08716b22496e9fe
     segments = {}
     pos = 2  # Skip SOI
@@ -40,8 +40,7 @@ def parse_jpg_segments(jpg):
     return segments
 
 def inject_segment(old_jpg, segment, segment_name):
-    # Only supports APP0 APP1 and SOS 
-    #just update the segment either replace or insert new
+    # either replace or insert new
     # this is relatively easy since jpeg doesnt have any directory, size or checksum fields
     segments = parse_jpg_segments(old_jpg)
     existing_segment = segments.get(segment_name, None)

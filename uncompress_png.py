@@ -81,6 +81,5 @@ iccp_chunk = create_iccp_chunk("sRGB v1.0", icc_profile)
 with open(filename + "poly.png", 'wb') as f:
     f.write(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A')
     f.write(idhr_chunk)
-    #f.write(iccp_chunk)
     f.write(idat_chunk)
     f.write(iend_chunk)

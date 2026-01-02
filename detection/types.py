@@ -22,6 +22,7 @@ FILETYPE_NAMES_ALT = {
     "jfif": FileType.JPEG,
     "jpg": FileType.JPEG,
     "htm": FileType.HTML,
+    "javascript" : FileType.JS
 }
 
 @dataclass

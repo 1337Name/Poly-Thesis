@@ -52,7 +52,7 @@ class BaseDetector(ABC):
             pattern = r'\b' + re.escape(name) + r'\b' # search for whole word
             if re.search(pattern, raw_type):
                 return file_type
-        # Autocheck with FileType names TODO eval if there is any problems
+        # TODO eval if there is any problems
         for file_type in FileType:
             pattern = r'\b' + re.escape(file_type.value.lower()) + r'\b'
             if re.search(pattern, raw_type):

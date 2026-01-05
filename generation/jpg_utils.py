@@ -14,8 +14,10 @@ def parse_jpg_segments(jpg):
         #0x00/0xFF is FF as literal data but we dont parse for FF anyway but jump through the file using length so we did something wrong
         if marker in [0x00, 0xFF]:
             raise ValueError(f"Error parsing ended up in data not a segment beginning")
+        if marker == 0xD9: #EOI
+                return segments
         # no length field 
-        if marker == 0x01 or marker in range(0xD0, 0xD10):
+        if marker == 0x01 or marker in range(0xD0, 0xD9):
             pos += 2
         else:
             #has length field  
@@ -50,11 +52,11 @@ def inject_segment(old_jpg, segment, segment_name):
         # replace
         pos = existing_segment['pos']
         old_len = existing_segment['length']
-        result[pos:pos+old_len] = segment #bytearray resize
-        segment_offset = pos
-    else:
-        # new segment
-        result[2:2] = segment
-        segment_offset = 2
+        del result[pos : pos + old_len] # we want it at early pos else its bad/unfair for detection as magika only take first 1024 middle 1024 end 1024 (obviously this makes trivial bypass)
+        #result[pos:pos+old_len] = segment #bytearray resize
+        #segment_offset = pos
+    # new segment
+    result[2:2] = segment
+    segment_offset = 2
 
     return bytes(result), segment_offset

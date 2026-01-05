@@ -27,14 +27,14 @@ class PNGICCGenerator(BaseGenerator):
         existing_iccp = False
         for chunk_type, start, end in chunks:
             if chunk_type == b"iCCP":
-                #replace ICCP
-                host[start:end] = iccp
-                existing_iccp = True
+                del host[start:end] #insert at start for detection so magika can see it
+                #host[start:end] = iccp
+                #existing_iccp = True
                 break
         if not existing_iccp:
             #insert after IHDR sicne iccp doesnt exist yet
             for chunk_type, start, end in chunks:
-                if chunk_type == b"IHDR":
+                if chunk_type == b"IHDR": # NEVER insert after any chunk != IHDR IF deleting before (now offsets wrong)
                     host[end:end] = iccp
                     existing_iccp = True
                     break

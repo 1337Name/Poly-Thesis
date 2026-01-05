@@ -9,9 +9,12 @@ class PolyDetDetector(BaseDetector):
 
     def detect(self, path : Path) -> DetectionResult:
         try:
-            import polydet 
+            import polydet
             result = polydet.scan(str(path))
             types = list(result.keys())
+            #mp3 always give false positive
+            types = [t for t in types if t.lower() not in ['mp3']]
+
             normalized = self._normalize(types)
             return self._make_result(normalized, self._make_serializable(result))
         except Exception as exception:

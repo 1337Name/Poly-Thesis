@@ -5,11 +5,11 @@ from typing import List
 
 class PolyFileDetector(BaseDetector):
 
-     def __init__(self, require_mimetype: bool = True):
+    def __init__(self, require_mimetype: bool = True):
         """
         require_mimetype: True: count only matches with mimetype; False: counts one match with empty mimetype
         """
-        
+
         super().__init__()
         self._require_mimetype = require_mimetype
 
@@ -33,6 +33,9 @@ class PolyFileDetector(BaseDetector):
                     else:
                         types.append("unknown")
             normalized = self._normalize(types)
+            # BMP all monoglots it finds text/x-diff so remove it as it doesnt tell anything
+            if "BMP" in normalized and "text/x-diff" in normalized:
+                normalized = [t for t in normalized if t != "text/x-diff"]
             return self._make_result(normalized, types)
         except Exception as exception:
             return self._make_error(exception)

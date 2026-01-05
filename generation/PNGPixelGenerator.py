@@ -61,3 +61,6 @@ class PNGPixelGenerator(BaseGenerator):
         crc = zlib.crc32(chunk_type + chunk_data)
         chunk += struct.pack('>I', crc)
         return chunk
+
+if __name__ == "__main__":
+    PNGPixelGenerator().main()

@@ -1,10 +1,10 @@
 
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List, Any
+from typing import Optional
 
 class FileType(str, Enum):
-   # we only need the filetypes we really use 
+   # we only need the filetypes we really use
    # Design decision here is we convert what we actualy look for in eval i.e. combinations we generate
    # Because if its in the combination it will be converted correctly if not it doesnt really matter anyway
    # dont add a "Other" or default option instead keep the original String for compat with scores dict
@@ -17,12 +17,14 @@ class FileType(str, Enum):
     HTA = "HTA"
     ZIP = "ZIP"
     JS = "JS"
-    
+    PHP = "PHP"
+
 FILETYPE_NAMES_ALT = {
     "jfif": FileType.JPEG,
     "jpg": FileType.JPEG,
     "htm": FileType.HTML,
-    "javascript" : FileType.JS
+    "javascript" : FileType.JS,
+    "x-php": FileType.PHP
 }
 
 @dataclass

@@ -216,5 +216,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-#sampleimages
+#samples
 samples/
+#generated 
+generated/

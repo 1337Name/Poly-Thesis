@@ -5,7 +5,8 @@ from .baseGenerator import BaseGenerator
 from .BMPPixelGenerator import BMPPixelGenerator
 from .PNGPixelGenerator import PNGPixelGenerator
 from .PNGICCGenerator import PNGICCGenerator
-from .JPEGPAPP0Generator import JPEGAPP0Generator
+from .JPEGAPP0Generator import JPEGAPP0Generator
+from .JPEGPixelGenerator import JPEGPixelGenerator
 from .PDFInvisTextGenerator import PDFInvisTextGenerator
 
 BASE_PATH = Path(__file__).parent.parent
@@ -26,10 +27,10 @@ ALL_GENERATORS: dict[str, list[GeneratorConfig]] = {
     ],
     "PNG": [
         GeneratorConfig(PNGPixelGenerator(), PolyglotKind.SEMANTIC),
-        GeneratorConfig(PNGICCGenerator(), PolyglotKind.SEMANTIC),
+        GeneratorConfig(PNGICCGenerator(), PolyglotKind.PARASITE),
     ],
     "JPEG": [
-        #GeneratorConfig(JpgProgressiveGenerator(), PolyglotKind.SEMANTIC), TODO
+        GeneratorConfig(JPEGPixelGenerator(), PolyglotKind.SEMANTIC),
         GeneratorConfig(JPEGAPP0Generator(), PolyglotKind.PARASITE)
     ],
     "PDF": [
@@ -37,14 +38,14 @@ ALL_GENERATORS: dict[str, list[GeneratorConfig]] = {
     ],
 }
 
-def get_files(fmt: str) -> list[Path]:
+def get_files(fmt: str, limit: int = 2) -> list[Path]:
     files = []
     fmt = fmt.lower()
     fmt_dir = SAMPLES_DIR / fmt
     exts = ["*.jpg", "*.jpeg"] if fmt == "jpeg" else [f"*.{fmt}"] #ugly but simple enough
     for ext in exts:
         files.extend(fmt_dir.glob(ext))
-    return files
+    return files[:limit]
 
 def run() -> PolyDataset:
     polyDataset = PolyDataset.create()

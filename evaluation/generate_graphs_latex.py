@@ -1,5 +1,5 @@
 """Generate publication-quality PDF figures for LaTeX embedding using Matplotlib."""
-
+"""GENERATED USING AI"""
 import json
 from pathlib import Path
 from collections import defaultdict

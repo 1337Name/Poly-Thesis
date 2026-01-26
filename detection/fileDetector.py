@@ -1,10 +1,14 @@
+"""Detector implementation using the Unix ``file`` command."""
+
 from .baseDetector import BaseDetector
 from .types import DetectionResult
 from pathlib import Path
 from typing import List
 import subprocess
 
+
 class FileDetector(BaseDetector):
+    """Wraps the Unix ``file --keep-going --mime-type`` command for detection."""
 
     def detect(self, path: Path) -> DetectionResult:
         try:

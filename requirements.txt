@@ -1,0 +1,9 @@
+magika==1.0.1
+polydet @ git+https://github.com/Polydet/polydet.git
+polyfile==0.5.5
+pypng==0.20220715.0
+Pillow==12.0.0
+pandas==2.3.3
+numpy==2.4.0
+matplotlib==3.10.8
+plotly==6.5.0

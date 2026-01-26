@@ -1,10 +1,14 @@
+"""Detector implementation using Google's Magika ML-based file type detector."""
+
 from .baseDetector import BaseDetector
 from .types import DetectionResult
 from pathlib import Path
 from typing import List
 import magika
 
+
 class MagikaDetector(BaseDetector):
+    """Wraps Magika with configurable threshold for multi-type detection."""
     def __init__(self, threshold : float = 0.1):
         super().__init__()
         self._threshold = threshold

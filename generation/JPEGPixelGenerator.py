@@ -1,10 +1,13 @@
-import struct
+"""JPEG polyglot generator using progressive scan data embedding."""
+
 import subprocess
 from .baseGenerator import BaseGenerator
 import tempfile
 
+
 class JPEGPixelGenerator(BaseGenerator):
-    #depends on convert / imagemagick being installed on system
+    """Embeds payload into progressive JPEG scan data (semantic polyglot). Requires ImageMagick."""
+
     def _get_name(self) -> str:
         return "JPEGPixelGenerator"
 
@@ -12,6 +15,7 @@ class JPEGPixelGenerator(BaseGenerator):
         return "JPEG"
     
     def generate(self, host: bytes, payload: bytes) -> bytes:
+        """Convert to progressive JPEG and embed payload before EOI marker."""
         if len(host)<2 or host[0:2] != b'\xFF\xD8':
             raise ValueError("Error: Is not a valid JPEG")
         if b"\xFF" in payload:
@@ -35,6 +39,7 @@ class JPEGPixelGenerator(BaseGenerator):
         return bytes(prog)
 
     def _to_progressive(self, host : bytes) -> bytes:
+        """Convert JPEG to progressive using ImageMagick."""
         with tempfile.NamedTemporaryFile(delete=True) as tmp_in, tempfile.NamedTemporaryFile(delete=True) as tmp_out:
             tmp_in.write(host)
             tmp_in.flush()

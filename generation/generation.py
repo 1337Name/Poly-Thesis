@@ -1,3 +1,5 @@
+"""Core generation types and orchestration for polyglot file creation."""
+
 from enum import StrEnum, auto
 import hashlib
 import json
@@ -6,11 +8,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from .baseGenerator import BaseGenerator
+
+
 class GenStatus(StrEnum):
+    """Status of a polyglot generation attempt."""
     SUCCESS = auto()
     ERROR = auto()
 
+
 class PolyglotKind(StrEnum):
+    """Classification of polyglot embedding techniques."""
     SEMANTIC = auto()
     STACK = auto()
     CAVITY = auto()
@@ -21,6 +28,7 @@ def sha256(data: bytes) -> str:
 
 @dataclass
 class Result:
+    """Result of a single polyglot generation with metadata for reproducibility."""
     status: GenStatus
     kind: PolyglotKind
     generator: str
@@ -28,17 +36,19 @@ class Result:
     covert_format: str
 
     # metadata for proof / reproduce
-    overt_path : str
-    overt_hash : str
-    covert_path : str
-    covert_hash : str 
-    #might fail no output
+    overt_path: str
+    overt_hash: str
+    covert_path: str
+    covert_hash: str
+    # might fail no output
     output_path: str
-    output_hash: Optional[str] 
-    #might not fail no error
+    output_hash: Optional[str]
+    # might not fail no error
     error: Optional[str]
 
-def launch(generator : BaseGenerator, overt_path: Path, covert_path: Path, out_path: Path, kind: PolyglotKind, covert_format: Optional[str]):
+
+def launch(generator: BaseGenerator, overt_path: Path, covert_path: Path, out_path: Path, kind: PolyglotKind, covert_format: Optional[str]):
+    """Execute a generator on given files and return a Result with hashes."""
     overt = overt_path.read_bytes()
     covert = covert_path.read_bytes()
     status = GenStatus.SUCCESS
@@ -72,6 +82,7 @@ def launch(generator : BaseGenerator, overt_path: Path, covert_path: Path, out_p
 
 @dataclass
 class PolyDataset:
+    """Collection of generation results with JSON serialization support."""
     timestamp: str
     polyglots: list[Result]
 

@@ -1,15 +1,18 @@
+"""Detector implementation using the PolyFile magic matcher."""
+
 from .baseDetector import BaseDetector
 from .types import DetectionResult
 from pathlib import Path
 from typing import List
 
+
 class PolyFileDetector(BaseDetector):
+    """Wraps PolyFile's MagicMatcher for file type detection."""
 
     def __init__(self, require_mimetype: bool = True):
         """
         require_mimetype: True: count only matches with mimetype; False: counts one match with empty mimetype
         """
-
         super().__init__()
         self._require_mimetype = require_mimetype
 

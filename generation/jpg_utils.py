@@ -1,8 +1,11 @@
+"""Utility functions for parsing and manipulating JPEG file structure."""
+
 import sys
 import struct
+
+
 def parse_jpg_segments(jpg):
-    # parse all marker bytes and give type to relevant ones (App0 APP1 SOS)
-    # using marker types data from https://gist.github.com/RavuAlHemio/82959fb698790781c08716b22496e9fe
+    """Parse JPEG markers and return dict of {name: {pos, length}} for APP0/APP1/SOS."""
     segments = {}
     pos = 2  # Skip SOI
 
@@ -41,9 +44,8 @@ def parse_jpg_segments(jpg):
                 pos += length 
     return segments
 
-def inject_segment(old_jpg, segment, segment_name):
-    # either replace or insert new
-    # this is relatively easy since jpeg doesnt have any directory, size or checksum fields
+def inject_segment(old_jpg, segment, segment_name, offset):
+    """Delete existing segment (if any) and insert new one at offset. Returns (bytes, offset)."""
     segments = parse_jpg_segments(old_jpg)
     existing_segment = segments.get(segment_name, None)
     result = bytearray(old_jpg)
@@ -52,11 +54,10 @@ def inject_segment(old_jpg, segment, segment_name):
         # replace
         pos = existing_segment['pos']
         old_len = existing_segment['length']
-        del result[pos : pos + old_len] # we want it at early pos else its bad/unfair for detection as magika only take first 1024 middle 1024 end 1024 (obviously this makes trivial bypass)
+        del result[pos : pos + old_len] # we want it at early pos else its bad/unfair for detection as magika only take first 1024 end 1024
         #result[pos:pos+old_len] = segment #bytearray resize
         #segment_offset = pos
-    # new segment
-    result[2:2] = segment
-    segment_offset = 2
+    result[offset:offset] = segment
+    segment_offset = offset
 
     return bytes(result), segment_offset

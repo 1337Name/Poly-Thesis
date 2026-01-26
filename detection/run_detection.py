@@ -1,3 +1,10 @@
+"""
+Main detection runner for evaluating polyglot files.
+
+Runs all configured detectors on generated polyglot files and their source
+monoglots, collecting results into a JSON dataset for analysis.
+"""
+
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from datetime import datetime
@@ -9,8 +16,10 @@ from .magikaDetector import MagikaDetector
 from .polyFileDetector import PolyFileDetector
 from .polyDetDetector import PolyDetDetector
 
+
 @dataclass
 class DetectorConfig:
+    """Configuration for a single detector with timeout."""
     detector: object
     name: str
     timeout: int
@@ -31,6 +40,7 @@ GENERATED_DIR = BASE_PATH / "generated"
 #using base exception and having old_handler coem from this blog post idea to prevent further issues: https://anonbadger.wordpress.com/2018/12/15/python-signal-handlers-and-exceptions/
 # do it like this bcause using using big custom libraries for detect which might use also signal 
 class TimeoutException(BaseException):
+    """Raised when detector execution exceeds configured timeout."""
     pass
 
 def _timeout_handler(signum, frame):
@@ -38,6 +48,7 @@ def _timeout_handler(signum, frame):
 
 @dataclass
 class EvalResult:
+    """Detection results for a single file across all detectors."""
     file_path: str
     generator: str
     overt_format: str
@@ -45,8 +56,10 @@ class EvalResult:
     is_polyglot: bool
     detectors: dict  #{name(str): DetectionResult}
 
+
 @dataclass
 class EvalDataset:
+    """Collection of evaluation results with timestamp and save functionality."""
     timestamp: str
     results: list[EvalResult]
 
@@ -78,6 +91,7 @@ class EvalDataset:
             json.dump(asdict(self), f, default=custom_json, indent=2)
 
 def run_detector_with_timeout(detector, name, file_path, seconds):
+    """Run a detector with Unix SIGALRM-based timeout protection."""
     old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
     try:
         signal.alarm(seconds)
@@ -106,6 +120,7 @@ def run_detector_with_timeout(detector, name, file_path, seconds):
         signal.alarm(0)
 
 def run_detectors(file_path) -> dict:
+    """Run all configured detectors on a file and return results dict."""
     results = {}
     for config in ALL_DETECTORS:
         result = run_detector_with_timeout(config.detector, config.name, file_path, config.timeout)
@@ -113,8 +128,7 @@ def run_detectors(file_path) -> dict:
     return results
 
 def run() -> EvalDataset:
-    #collecting the needed files to run from run.json 
-    #uses run_detectors to run detectors on each file
+    """Run detection evaluation on all generated polyglots and source files."""
     dataset = EvalDataset.create()
     generation_json_path = GENERATED_DIR / "run.json"
     with open(generation_json_path) as f:

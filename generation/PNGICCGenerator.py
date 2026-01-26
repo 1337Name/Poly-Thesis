@@ -1,3 +1,4 @@
+"""PNG polyglot generator using ICC profile embedding."""
 
 import zlib
 import struct
@@ -5,8 +6,8 @@ from pathlib import Path
 from .baseGenerator import BaseGenerator
 
 
-
 class PNGICCGenerator(BaseGenerator):
+    """Embeds payload into PNG via iCCP chunk with modified ICC profile (parasite polyglot)."""
     _compression_method = zlib.Z_NO_COMPRESSION
     def _get_name(self) -> str:
         return "PNGICCGenerator"
@@ -15,11 +16,17 @@ class PNGICCGenerator(BaseGenerator):
         return "PNG"
 
     def generate(self, host: bytes, payload: bytes) -> bytes:
+        """Inject payload into ICC profile and insert as iCCP chunk after IHDR."""
         parent = Path(__file__).parent
-        relative = "data/srgb.icc"
+        relative = "data/sRGB2014.icc"
         icc_path = (parent / relative).resolve()
         icc = icc_path.read_bytes()
         icc = self._inject_into_icc(icc, payload)
+
+        #uncompressed deflate block cant be bigger than that
+        if len(icc) >65536:
+            raise ValueError(f"ICC profile + payload is {len(icc)} bytes, maximum is 65536")
+
         iccp = self._create_iccp_chunk("sRGB", icc)
 
         chunks = self._parse_chunks(host)
@@ -43,7 +50,7 @@ class PNGICCGenerator(BaseGenerator):
 
 
     def _inject_into_icc(self, icc, payload):
-        #junk method inspired from https://github.com/corkami/mitra/blob/master/parsers/icc.py
+        """Add payload as 'junk' tag in ICC profile, shifting existing tag offsets."""
         icc = bytearray(icc)
         tag_count = struct.unpack('>I', icc[128:132])[0]
         # OLD end value
@@ -65,16 +72,17 @@ class PNGICCGenerator(BaseGenerator):
         return bytes(icc)
 
     def _create_iccp_chunk(self, profile_name, icc_profile):
+        """Create iCCP chunk with null-terminated name and zlib-compressed ICC data."""
         chunk_data = profile_name.encode('latin-1') + b'\x00'
         chunk_data += b'\x00'  # compression method = zlib
         chunk_data += zlib.compress(icc_profile, level=self._compression_method)
         return self._create_chunk(b'iCCP', chunk_data)
 
 
-    def _parse_chunks(self, data : bytes) -> list: 
+    def _parse_chunks(self, data : bytes) -> list:
+        """Parse PNG into list of (chunk_type, start_pos, end_pos) tuples."""
         chunks = []
-        pos = 8 #after magic 
-        # same structure as _createchunk just now we parse#
+        pos = 8 #after magic
         while pos < len(data):
             chunk_len = struct.unpack(">I", data[pos:pos+4])[0]
             chunk_type = data[pos+4:pos+8]
@@ -85,7 +93,7 @@ class PNGICCGenerator(BaseGenerator):
         return chunks
 
     def _create_chunk(self, chunk_type, chunk_data):
-        #https://www.w3.org/TR/png/#5Chunk-layout
+        """Build a PNG chunk: length (4B) + type (4B) + data + CRC32 (4B)."""
         length = len(chunk_data)
         chunk = struct.pack('>I', length)
         chunk += chunk_type
@@ -93,3 +101,6 @@ class PNGICCGenerator(BaseGenerator):
         crc = zlib.crc32(chunk_type + chunk_data)
         chunk += struct.pack('>I', crc)
         return chunk
+
+if __name__ == "__main__":
+    PNGICCGenerator().main()

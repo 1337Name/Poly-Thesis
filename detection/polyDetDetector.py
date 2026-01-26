@@ -1,9 +1,13 @@
+"""Detector implementation using the PolyDet library."""
+
 from .baseDetector import BaseDetector
 from .types import DetectionResult
 from pathlib import Path
 from typing import List, Any, Dict
 
+
 class PolyDetDetector(BaseDetector):
+    """Wraps the PolyDet library for polyglot file detection."""
     def _get_name(self) -> str:
         return "polydet"
 

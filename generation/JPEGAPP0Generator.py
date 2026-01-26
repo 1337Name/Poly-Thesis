@@ -1,8 +1,13 @@
+"""JPEG polyglot generator using APP0 segment embedding."""
+
 import struct
 from .baseGenerator import BaseGenerator
 from .jpg_utils import inject_segment
 import math
+
+
 class JPEGAPP0Generator(BaseGenerator):
+    """Embeds payload into JPEG APP0 (JFIF) segment as thumbnail data (parasite polyglot)."""
     def _get_name(self) -> str:
         return "JPEGAPP0Generator"
 
@@ -10,14 +15,15 @@ class JPEGAPP0Generator(BaseGenerator):
         return "JPEG"
     
     def generate(self, host: bytes, payload: bytes) -> bytes:
+        """Embed payload in APP0 thumbnail and inject after SOI marker."""
         if len(host)<2 or host[0:2] != b'\xFF\xD8':
             raise ValueError("Error: Is not a valid JPEG")
         app0 = self._create_app0(payload)
-        new_jpg, offset = inject_segment(host, app0, "APP0")
+        new_jpg, offset = inject_segment(host, app0, "APP0", 2)
         return new_jpg
 
     def _create_app0(self, payload):
-        # Pad payload
+        """Build JFIF APP0 segment with payload as RGB thumbnail data (max 65KB)."""
         mod3 = len(payload) % 3
         if mod3 != 0:
             payload = payload + (b'\x00' * (3-mod3))

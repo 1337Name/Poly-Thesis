@@ -1,9 +1,13 @@
+"""BMP polyglot generator using pixel data embedding."""
+
 import sys
 import struct
 import os
 from .baseGenerator import BaseGenerator
 
+
 class BMPPixelGenerator(BaseGenerator):
+    """Embeds payload into BMP pixel data (semantic polyglot)."""
     def _get_name(self) -> str:
         return "BMPPixelPolyglotGenerator"
 
@@ -11,6 +15,7 @@ class BMPPixelGenerator(BaseGenerator):
         return "BMP"
     
     def generate(self, host: bytes, payload: bytes) -> bytes:
+        """Embed payload into BMP pixel data at a fixed offset after the image data start."""
         payload_offset = 20
         bmp = host
         if len(bmp) < 30:
@@ -27,10 +32,6 @@ class BMPPixelGenerator(BaseGenerator):
         imgSize = width*length*bytespp
         if(len(payload) + payload_offset > imgSize): 
             raise ValueError("payload size + offset greater than image size")
-        #if(len(payload) > imgSize // 100):
-            #TODO logging?
-            #print("Warning: payload takes up a significant part of the image")
-
         offset = img_offset + payload_offset
         offset_end = offset + len(payload)
         bmp_array = bytearray(bmp) # mutable

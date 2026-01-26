@@ -1,3 +1,4 @@
+"""PNG polyglot generator using pixel data embedding."""
 
 import zlib
 import struct
@@ -8,6 +9,7 @@ import sys
 
 
 class PNGPixelGenerator(BaseGenerator):
+    """Embeds payload into PNG pixel data with uncompressed IDAT (semantic polyglot)."""
     _compression_method = zlib.Z_NO_COMPRESSION
     def _get_name(self) -> str:
         return "PNGPixelGenerator"
@@ -16,7 +18,7 @@ class PNGPixelGenerator(BaseGenerator):
         return "PNG"
 
     def generate(self, host: bytes, payload: bytes) -> bytes:
-        
+        """Rebuild PNG with payload in first row of pixel data using uncompressed IDAT."""
         reader = png.Reader(bytes=host)
         width, height, pixels, metadata = reader.asRGB()
         pixels = list(pixels)
@@ -52,8 +54,7 @@ class PNGPixelGenerator(BaseGenerator):
 
 
     def _create_chunk(self, chunk_type, chunk_data):
-        #https://www.w3.org/TR/png/#5Chunk-layout
-        #duplicate with PNGICC but for a short method dont have to make a abstraction I think.  
+        """Build a PNG chunk: length (4B) + type (4B) + data + CRC32 (4B)."""
         length = len(chunk_data)
         chunk = struct.pack('>I', length)
         chunk += chunk_type

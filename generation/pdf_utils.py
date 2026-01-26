@@ -1,7 +1,11 @@
+"""Utility functions for parsing and manipulating PDF structure."""
+
 import re
-import sys 
+import sys
+
 
 def find_highest_obj_ID(PDF):
+    """Find the highest object ID number in a PDF."""
     #Copied from rimser thesis raw_pdf.py
     splitPDF = re.findall( b'(\d+[ \t]*\d+[ \t]*obj)', PDF) # split PDF into objects, modified so it match tab too
     max_num = -1
@@ -14,12 +18,13 @@ def find_highest_obj_ID(PDF):
     return max_num
 
 def find_byte_offset(PDF, content):
+    """Find the byte offset of content within a PDF."""
     search = re.split(b'(' + content + b')', PDF)[:1]
     offset = len(b''.join(search))
     return offset
 
-    #Copied from rimser thesis raw_pdf.py
 def create_xref(PDF):
+    """Create a new xref table for the PDF."""
     xref = b'\nxref\n'
     xref += b'0 '
     xref += str(find_highest_obj_ID(PDF) + 1).encode() + b'\n' # fixed this to correct format and size (size is index+1 if start from 0 and reversed order)
@@ -34,9 +39,8 @@ def create_xref(PDF):
 
     return xref
 
-#copied from rimser thesis raw_pdf.py
-#modified to take bytes not file and to take in a argument for root_ref already given
 def create_trailer(PDF, root_ref=None):
+    """Create a new trailer section for the PDF."""
     object_count = find_highest_obj_ID(PDF) - 1
 
     trailer = b'\ntrailer\n'
@@ -51,8 +55,7 @@ def create_trailer(PDF, root_ref=None):
 
 
 def parseDictSpan(pdf, start):
-    #parse a dictionary from begin to end (begin should be before the first "<<")
-    #have to do it like this because its cfg
+    """Find end position of PDF dict starting at 'start' by counting << >> pairs."""
     count = 0
     i = start
     while i < len(pdf):

@@ -1,3 +1,5 @@
+"""PDF polyglot generator using invisible text stream embedding."""
+
 import re
 import sys
 import struct
@@ -5,16 +7,9 @@ import os
 from .baseGenerator import BaseGenerator
 from .pdf_utils import find_highest_obj_ID, create_xref, create_trailer, parseDictSpan
 
-class PDFInvisTextGenerator(BaseGenerator):
-    """
-    insert payload into pdf by adding a new font then adding a stream to a page and putting tr3 (invisible) the payload in the stream
 
-    in hindsight might been easier to just find some font and use its name
-    as its very spaghetti especialyl after testing on real corpus pdfs 
-     there is stuff like linearized pdf with multiple xref
-     some dont put space between then regex matching can be porblematic
-    #b9iggest problem in general (every pdf) is that everything can be direct or indirect so blows up to lots of cases to handle
-    t"""
+class PDFInvisTextGenerator(BaseGenerator):
+    """Embeds payload as invisible text (Tr 3) in a PDF content stream (semantic polyglot)."""
 
     def _get_name(self) -> str:
         return "PDFInvisTextGenerator"
@@ -28,7 +23,7 @@ class PDFInvisTextGenerator(BaseGenerator):
     _font_inner_dict = b" << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
 
     def _addToFontDict(self, pdf, page, res_dict, fontname):
-        # look for font dict in resource dict and insert new font, very similar to addFontToPage TODO see if can generalize this recursion
+        """Insert font into /Font dict (handles missing, direct, or indirect ref)."""
         custom_font = b"/" + fontname + self._font_inner_dict
         match = re.search(b"/Font[ \t\n]*", res_dict)
 
@@ -71,7 +66,7 @@ class PDFInvisTextGenerator(BaseGenerator):
         raise ValueError("Error: malformed Font dictionary")
 
     def _addFontToPage(self, pdf, page, fontname):
-        # kind of complicated either it doesnt exist or it exist as indicrect or as direct reference
+        """Add font to page /Resources (handles missing, direct, or indirect ref)."""
         custom_font = fontname + self._font_inner_dict
         match = re.search(b"/Resources[ \t\n]*", page)
         if not match:
@@ -101,10 +96,7 @@ class PDFInvisTextGenerator(BaseGenerator):
         return self._addToFontDict(pdf, page, res_dict, fontname)
 
     def _findPageObject(self, pdf):
-        #find the first page object in the pdf (not necessarily the first page)
-        # ? important so it only match to the first occurence, re.S so we can go across nl's
-        # last match until endobj not >> else we match any >> inside the obj like a font dict
-        # iter over every obj now because regex for page object directly was error prone
+        """Find first /Type /Page object by iterating all objects."""
         for obj_match in re.finditer(rb"(\d+ \d+ obj.*?endobj)", pdf, re.S):
             #we have to parse both header and footer
             #it seems like in PDF /Type/Page its either in beginning or end
@@ -136,6 +128,7 @@ class PDFInvisTextGenerator(BaseGenerator):
         return None #no Page obj found
 
     def _insertHiddenStream(self, pdf, content):
+        """Add invisible text stream (Tr 3) to first page, rebuild xref/trailer."""
         fontname = b"Font124573" #no collision
         fontname_str = fontname.decode('ascii')
         old_max_obj_id = find_highest_obj_ID(pdf)

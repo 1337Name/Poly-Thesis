@@ -6,8 +6,7 @@ First one needs to gather all the dependencies from requirements.txt file. Note 
 
 It is also possible to run each generator as a standalone script: `python3 -m generation.BMPPixelGenerator host.bmp payload.js output.bmp`
 
-The samples, generated files, and files used for CDR evaluation are attainable [here](https://drive.google.com/drive/folders/1E96e3dxTJYOt32jX1ZotZs4TkMTBXzbh?usp=sharing)
-
+The samples, generated files, and files used for CDR evaluation are available [here](https://drive.google.com/drive/folders/1E96e3dxTJYOt32jX1ZotZs4TkMTBXzbh?usp=sharing).These files are intended solely for research purposes and may contain copyrighted or intentionally malicious material (e.g., embedded payloads). Do not use them outside of a research context.
 
 
 ## How to extend
